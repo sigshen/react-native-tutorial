@@ -13,6 +13,8 @@ import React, {
   View
 } from 'react-native';
 
+import ToastAndroid from './ToastAndroid';
+
 /**
  * For quota reasons we replaced the Rotten Tomatoes' API with a sample data of
  * their very own API that lives in React Native's Github repo.
@@ -44,12 +46,13 @@ class AwesomeProject extends Component {
   }
 
   componentDidMount() {
-    this.fetchData();
+    //this.fetchData();
   }
 
   render() {
     if (!this.state.loaded) {
-      return this.renderLoadingView();
+      ToastAndroid.show('Awesome', ToastAndroid.SHORT);
+      //return this.renderLoadingView();
     }
 
     return (
