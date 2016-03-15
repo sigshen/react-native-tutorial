@@ -7,6 +7,7 @@ import React, {
   AppRegistry,
   Component,
   Image,
+  ListView,
   StyleSheet,
   Text,
   View
@@ -18,22 +19,59 @@ import React, {
  */
 var REQUEST_URL = 'https://raw.githubusercontent.com/facebook/react-native/master/docs/MoviesExample.json';
 
-var MOCKED_MOVIES_DATA = [
-  {title: 'Title', year: '2015', posters: {thumbnail:
-    'http://i.imgur.com/UePbdph.jpg'}},
-]
-
 class AwesomeProject extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      movies: null,
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (row1, row2) => row1 !== row2,
+      }),
+      loaded: false,
     }
   }
 
+  fetchData() {
+    fetch(REQUEST_URL)
+      .then((response) => response.json())
+      .then(responseData => {
+        this.setState({
+          dataSource: this.state.dataSource.cloneWithRows(responseData.movies),
+          loaded: true,
+        });
+      })
+      .done();
+  }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+
   render() {
-    var movie = MOCKED_MOVIES_DATA[0];
+    if (!this.state.loaded) {
+      return this.renderLoadingView();
+    }
+
+    return (
+      <ListView
+        dataSource={this.state.dataSource}
+        renderRow={this.renderMovie}
+        style={styles.listView}
+      />
+    );
+  }
+
+  renderLoadingView() {
+    return (
+        <View style={styles.container}>
+          <Text>
+            Loading movies...
+          </Text>
+        </View>
+    );
+  }
+
+  renderMovie(movie) {
     return (
         <View style={styles.container}>
           <Image source={{uri: movie.posters.thumbnail}}
@@ -69,7 +107,11 @@ const styles = StyleSheet.create({
   },
   year: {
     textAlign: "center"
-  }
+  },
+  listView: {
+    paddingTop: 20,
+    backgroundColor: '#F5FCFF',
+  },
 });
 
 AppRegistry.registerComponent('AwesomeProject', () => AwesomeProject);
